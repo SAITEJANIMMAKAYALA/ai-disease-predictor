@@ -1,0 +1,7 @@
+fever,cough,headache,sore_throat,fatigue,Disease
+1,1,1,1,0,COVID-19
+1,1,0,1,1,Flu
+1,0,1,0,1,Dengue
+0,1,1,0,0,Common Cold
+0,0,1,0,1,Typhoid
+1,1,0,0,0,Malaria
