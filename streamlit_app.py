@@ -1,7 +1,7 @@
 import streamlit as st
 import joblib
 import numpy as np
-from googletrans import Translator
+import os
 
 # Load model and encoders
 model = joblib.load("disease_model.pkl")
@@ -46,17 +46,22 @@ disease_precautions = {
     }
 }
 
+# Awareness images (if using locally)
+image_map = {
+    "COVID-19": "images/covid.png",
+    "Flu": "images/flu.png",
+    "Dengue": "images/dengue.png",
+    "Common Cold": "images/cold.png",
+    "Typhoid": "images/typhoid.png",
+    "Malaria": "images/malaria.png"
+}
+
 # Streamlit UI
 st.set_page_config(page_title="AI Disease Predictor", layout="centered")
 st.title("🩺 AI Disease Predictor")
 
-# Language selection
-language = st.selectbox("🌐 Choose Language", ["English", "Hindi", "Tamil", "Telugu"])
-lang_codes = {"English": "en", "Hindi": "hi", "Tamil": "ta", "Telugu": "te"}
-translator = Translator()
-
 # Symptom input
-selected_symptoms = st.multiselect("Symptoms", symptoms_list)
+selected_symptoms = st.multiselect("Select your symptoms:", symptoms_list)
 input_data = [1 if symptom in selected_symptoms else 0 for symptom in symptoms_list]
 
 # Predict button
@@ -69,24 +74,30 @@ if st.button("Predict Disease"):
 
         st.success(f"🧬 Predicted Disease: **{predicted_disease}**")
 
-        # Translate and show disease description
+        # Disease description
         description = disease_info.get(predicted_disease, "No info available.")
-        translated = translator.translate(description, dest=lang_codes[language])
-        st.info(f"📝 About the Disease ({language}):\n{translated.text}")
+        st.info(f"📝 About the Disease:\n{description}")
 
-        # Show precautions
+        # Precautions
         precautions = disease_precautions.get(predicted_disease, {}).get("precautions", [])
         if precautions:
             st.subheader("🛡️ Precautions")
             for item in precautions:
-                st.markdown(f"- {translator.translate(item, dest=lang_codes[language]).text}")
+                st.markdown(f"- {item}")
 
-        # Show tablets
+        # Tablets
         tablets = disease_precautions.get(predicted_disease, {}).get("tablets", [])
         if tablets:
             st.subheader("💊 Suggested Tablets / Treatment")
             for tab in tablets:
-                st.markdown(f"- {translator.translate(tab, dest=lang_codes[language]).text}")
+                st.markdown(f"- {tab}")
+
+        # Awareness image
+        img_path = image_map.get(predicted_disease)
+        if img_path and os.path.exists(img_path):
+            st.image(img_path, use_container_width=True, caption=f"{predicted_disease} Awareness Image")
+        else:
+            st.warning("📷 Awareness image not found for this disease.")
 
         # Nearby hospitals
         st.markdown("📍 [Click here to find Nearby Hospitals](https://www.google.com/maps/search/hospitals+near+me)")
